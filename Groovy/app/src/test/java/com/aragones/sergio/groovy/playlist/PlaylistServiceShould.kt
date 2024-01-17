@@ -1,25 +1,24 @@
 package com.aragones.sergio.groovy.playlist
 
-import com.aragones.sergio.groovy.utils.BaseUnitTest
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.assertEquals
 import org.junit.Test
+import com.aragones.sergio.groovy.utils.BaseUnitTest
 import java.lang.RuntimeException
 
 class PlaylistServiceShould : BaseUnitTest() {
 
-    private val api: PlaylistApi = mock()
     private lateinit var service: PlaylistService
-    private val playlists: List<Playlist> = mock()
+    private val api: PlaylistApi = mock()
+    private val playlists: List<PlaylistRaw> = mock()
 
     @Test
-    fun fetchPlaylistsFromApi() = runBlockingTest {
-
+    fun fetchPlaylistsFromAPI() = runBlockingTest {
         service = PlaylistService(api)
 
         service.fetchPlaylists().first()
@@ -29,19 +28,31 @@ class PlaylistServiceShould : BaseUnitTest() {
 
     @Test
     fun convertValuesToFlowResultAndEmitsThem() = runBlockingTest {
-
-        service = PlaylistService(api)
-        whenever(api.fetchAllPlaylists()).thenReturn(playlists)
+        mockSuccessfulCase()
 
         assertEquals(Result.success(playlists), service.fetchPlaylists().first())
     }
 
     @Test
     fun emitsErrorResultWhenNetworkFails() = runBlockingTest {
+        mockErrorCase()
 
-        service = PlaylistService(api)
+        assertEquals("Something went wrong",
+            service.fetchPlaylists().first().exceptionOrNull()?.message)
+    }
+
+
+
+    private suspend fun mockErrorCase() {
         whenever(api.fetchAllPlaylists()).thenThrow(RuntimeException("Damn backend developers"))
 
-        assertEquals("Something went wrong", service.fetchPlaylists().first().exceptionOrNull()?.message)
+        service = PlaylistService(api)
     }
+
+    private suspend fun mockSuccessfulCase() {
+        whenever(api.fetchAllPlaylists()).thenReturn(playlists)
+
+        service = PlaylistService(api)
+    }
+
 }

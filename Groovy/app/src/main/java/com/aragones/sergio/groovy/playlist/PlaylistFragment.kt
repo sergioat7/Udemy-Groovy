@@ -10,12 +10,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aragones.sergio.groovy.R
+import com.aragones.sergio.groovy.databinding.FragmentPlaylistBinding
+import com.aragones.sergio.groovy.databinding.PlaylistItemBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlaylistFragment : Fragment() {
 
+    private var binding: FragmentPlaylistBinding? = null
     @Inject
     lateinit var viewModelFactory: PlaylistViewModelFactory
 
@@ -28,11 +31,19 @@ class PlaylistFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val view = inflater.inflate(R.layout.fragment_playlist, container, false)
+        binding = FragmentPlaylistBinding.inflate(inflater, container, false)
+        val view = binding?.root
+
+        viewModel.loader.observe(this as LifecycleOwner) { loading ->
+            when (loading) {
+                true -> binding?.loader?.visibility = View.VISIBLE
+                else -> binding?.loader?.visibility = View.GONE
+            }
+        }
 
         viewModel.playlists.observe(this as LifecycleOwner) { playlists ->
             if (playlists.getOrNull() != null)
-                setupList(view, playlists.getOrNull()!!)
+                setupList(binding?.playlistsList, playlists.getOrNull()!!)
             else {
                 //TODO
             }
@@ -41,14 +52,19 @@ class PlaylistFragment : Fragment() {
         return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        binding = null
+    }
 
     private fun setupList(
         view: View?,
         playlists: List<Playlist>
     ) {
         with(view as RecyclerView) {
-            layoutManager = LinearLayoutManager(context)
 
+            layoutManager = LinearLayoutManager(context)
             adapter = MyPlaylistRecyclerViewAdapter(playlists)
         }
     }
@@ -56,7 +72,6 @@ class PlaylistFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance() =
-            PlaylistFragment().apply {}
+        fun newInstance() = PlaylistFragment().apply {}
     }
 }
