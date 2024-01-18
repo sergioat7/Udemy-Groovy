@@ -10,9 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.aragones.sergio.groovy.R
 import com.aragones.sergio.groovy.databinding.FragmentPlaylistBinding
-import com.aragones.sergio.groovy.databinding.PlaylistItemBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -20,6 +18,7 @@ import javax.inject.Inject
 class PlaylistFragment : Fragment() {
 
     private var binding: FragmentPlaylistBinding? = null
+
     @Inject
     lateinit var viewModelFactory: PlaylistViewModelFactory
 
@@ -36,6 +35,7 @@ class PlaylistFragment : Fragment() {
         val view = binding?.root
 
         viewModel.loader.observe(this as LifecycleOwner) { loading ->
+
             when (loading) {
                 true -> binding?.loader?.visibility = View.VISIBLE
                 else -> binding?.loader?.visibility = View.GONE
@@ -43,8 +43,9 @@ class PlaylistFragment : Fragment() {
         }
 
         viewModel.playlists.observe(this as LifecycleOwner) { playlists ->
+
             if (playlists.getOrNull() != null)
-                setupList(binding?.playlistsList, playlists.getOrNull()!!)
+                setupList(binding?.playlistsList, requireNotNull(playlists.getOrNull()))
             else {
                 //TODO
             }
@@ -73,14 +74,5 @@ class PlaylistFragment : Fragment() {
                 findNavController().navigate(action)
             }
         }
-    }
-
-    companion object {
-
-        @JvmStatic
-        fun newInstance() = PlaylistFragment().apply {}
-                val action =
-                    PlaylistFragmentDirections.actionPlaylistFragmentToPlaylistDetailFragment(id)
-                findNavController().navigate(action)
     }
 }
