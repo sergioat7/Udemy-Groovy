@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Groovy</string>
     <string name="playlist_screen_title">Playlists</string>
+    <string name="generic_error">Something went wrong</string>
 </resources>

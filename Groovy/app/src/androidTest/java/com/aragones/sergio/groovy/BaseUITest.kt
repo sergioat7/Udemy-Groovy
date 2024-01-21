@@ -3,6 +3,7 @@ package com.aragones.sergio.groovy
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.aragones.sergio.groovy.playlist.di.idlingResource
 import com.jakewharton.espresso.OkHttp3IdlingResource
@@ -11,6 +12,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.runner.RunWith
 import android.support.test.espresso.IdlingResource as SupportIdlingResource
 import android.support.test.espresso.IdlingResource.ResourceCallback as SupportResourceCallback
@@ -19,6 +21,10 @@ import androidx.test.espresso.IdlingResource.ResourceCallback as AndroidXResourc
 
 @RunWith(AndroidJUnit4::class)
 abstract class BaseUITest {
+
+    val mActivityRule: ActivityScenarioRule<MainActivity> =
+        ActivityScenarioRule(MainActivity::class.java)
+        @Rule get
 
     @Before
     fun setup() {
